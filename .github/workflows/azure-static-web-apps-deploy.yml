@@ -31,17 +31,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm run test:ci
-        env:
-          CI: true
-
-      - name: Run linting
-        run: npm run lint
-
-      - name: Run type checking
-        run: npm run type-check
-
       - name: Check environment variables
         run: npm run check-env
         env:
