@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSubscriptions } from '../../stores/authStore';
+import { useSubscriptions, useLocationSelector } from '../../stores/authStore';
 // import { useAuthStore } from '../../stores/authStore'; // Unused for now
 import { SearchableDropdown } from './SearchableDropdown';
 import { useTenantAwareServices } from '../../hooks/useTenantAwareServices';
@@ -89,13 +89,13 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
   className = '',
   disabled = false,
 }) => {
+  const { selectedSubscription } = useSubscriptions();
   const {
     locations,
     selectedLocation,
     setLocations,
     selectLocation,
-    selectedSubscription,
-  } = useSubscriptions();
+  } = useLocationSelector();
   const tenantAwareServices = useTenantAwareServices();
   const [, setLoadingLocations] = useState(false);
 

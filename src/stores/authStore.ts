@@ -31,6 +31,7 @@ interface AuthActions {
   setError: (error: string | null) => void;
   clearError: () => void;
   validateAndFixStoredData: () => void;
+  clearTenantData: () => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -53,15 +54,49 @@ export const useAuthStore = create<AuthStore>()(
         ...initialState,
 
         login: (user: User) => {
-          set(
-            {
-              isAuthenticated: true,
-              user,
-              error: null,
-            },
-            false,
-            'auth/login'
-          );
+          const currentUser = get().user;
+          
+          // Check if this is a different user (different tenant or user ID)
+          const isDifferentUser = !currentUser || 
+            currentUser.id !== user.id || 
+            currentUser.tenantId !== user.tenantId;
+          
+          if (isDifferentUser) {
+            console.log('Different user/tenant detected, clearing all tenant-specific data', {
+              previousUser: currentUser,
+              newUser: user,
+            });
+            
+            // Clear all tenant-specific data when switching users/tenants
+            set(
+              {
+                isAuthenticated: true,
+                user,
+                subscriptions: [], // Clear previous tenant's subscriptions
+                selectedSubscription: null, // Clear selected subscription
+                locations: [], // Clear previous tenant's locations
+                selectedLocation: 'eastus', // Reset to default location
+                loading: false,
+                error: null,
+              },
+              false,
+              'auth/login/newUser'
+            );
+            
+            // Also clear VM images cache - we'll do this via a callback mechanism
+            // The component that handles login should call clearAllTenantData
+          } else {
+            // Same user, just update authentication state
+            set(
+              {
+                isAuthenticated: true,
+                user,
+                error: null,
+              },
+              false,
+              'auth/login/sameUser'
+            );
+          }
         },
 
         logout: () => {
@@ -92,12 +127,22 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         selectSubscription: (subscriptionId: string) => {
-          const { subscriptions } = get();
+          const { subscriptions, selectedSubscription: currentSubscription } = get();
           const subscription = subscriptions.find(
             (sub) => sub.subscriptionId === subscriptionId
           );
 
           if (subscription) {
+            // Check if this is a different subscription
+            const isDifferentSubscription = currentSubscription !== subscriptionId;
+            
+            if (isDifferentSubscription) {
+              console.log('Different subscription selected, clearing VM images cache', {
+                previous: currentSubscription,
+                new: subscriptionId,
+              });
+            }
+            
             set(
               {
                 selectedSubscription: subscriptionId,
@@ -133,6 +178,16 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         selectLocation: (location: string) => {
+          const { selectedLocation: currentLocation } = get();
+          const isDifferentLocation = currentLocation !== location;
+          
+          if (isDifferentLocation) {
+            console.log('Different location selected, clearing VM images cache', {
+              previous: currentLocation,
+              new: location,
+            });
+          }
+          
           // Location validation is handled by the API - only valid locations are provided
           set(
             {
@@ -199,6 +254,21 @@ export const useAuthStore = create<AuthStore>()(
             }
           }
         },
+
+        // Clear all tenant-specific data (subscriptions, locations, etc.)
+        clearTenantData: () => {
+          set(
+            {
+              subscriptions: [],
+              selectedSubscription: null,
+              locations: [],
+              selectedLocation: 'eastus',
+              error: null,
+            },
+            false,
+            'auth/clearTenantData'
+          );
+        },
       }),
       {
         name: 'auth-store',
@@ -241,6 +311,68 @@ export const useSubscriptions = () => {
     subscriptions,
     selectedSubscription,
     selectSubscription,
+    locations,
+    selectedLocation,
+    setLocations,
+    selectLocation,
+  };
+};
+
+// Enhanced subscription selector that also clears VM images cache
+export const useSubscriptionSelector = () => {
+  const subscriptions = useAuthStore((state) => state.subscriptions);
+  const selectedSubscription = useAuthStore(
+    (state) => state.selectedSubscription
+  );
+  const selectSubscriptionBase = useAuthStore((state) => state.selectSubscription);
+  
+  const selectSubscription = (subscriptionId: string) => {
+    const currentSubscription = useAuthStore.getState().selectedSubscription;
+    const isDifferentSubscription = currentSubscription !== subscriptionId;
+    
+    // Select the subscription
+    selectSubscriptionBase(subscriptionId);
+    
+    // Clear VM images cache if switching to a different subscription
+    if (isDifferentSubscription) {
+      // We'll import this dynamically to avoid circular dependencies
+      import('../stores/vmImagesStore').then(({ useVMImagesStore }) => {
+        useVMImagesStore.getState().clearAll();
+      });
+    }
+  };
+
+  return {
+    subscriptions,
+    selectedSubscription,
+    selectSubscription,
+  };
+};
+
+// Enhanced location selector that also clears VM images cache
+export const useLocationSelector = () => {
+  const locations = useAuthStore((state) => state.locations);
+  const selectedLocation = useAuthStore((state) => state.selectedLocation);
+  const setLocations = useAuthStore((state) => state.setLocations);
+  const selectLocationBase = useAuthStore((state) => state.selectLocation);
+  
+  const selectLocation = (location: string) => {
+    const currentLocation = useAuthStore.getState().selectedLocation;
+    const isDifferentLocation = currentLocation !== location;
+    
+    // Select the location
+    selectLocationBase(location);
+    
+    // Clear VM images cache if switching to a different location
+    if (isDifferentLocation) {
+      // We'll import this dynamically to avoid circular dependencies
+      import('../stores/vmImagesStore').then(({ useVMImagesStore }) => {
+        useVMImagesStore.getState().clearAll();
+      });
+    }
+  };
+
+  return {
     locations,
     selectedLocation,
     setLocations,

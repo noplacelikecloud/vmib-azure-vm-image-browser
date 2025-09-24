@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useAuthStore, useSubscriptions } from '../../stores/authStore';
+import { useAuthStore, useSubscriptionSelector } from '../../stores/authStore';
 import { createSubscriptionService } from '../../services/subscriptionService';
 import { useMsal } from '@azure/msal-react';
 import { SearchableDropdown } from './SearchableDropdown';
@@ -16,12 +16,13 @@ export const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
   const { loading, error, setLoading, setError, setSubscriptions } =
     useAuthStore();
   const { subscriptions, selectedSubscription, selectSubscription } =
-    useSubscriptions();
-  const { instance, accounts } = useMsal();
+    useSubscriptionSelector();
+  const { instance, accounts, inProgress } = useMsal();
 
   useEffect(() => {
     const loadSubscriptions = async () => {
-      if (subscriptions.length === 0 && accounts.length > 0) {
+      // Add proper null checks for accounts array and MSAL initialization state
+      if (subscriptions.length === 0 && accounts && accounts.length > 0 && inProgress === 'none') {
         setLoading(true);
         setError(null);
 
@@ -45,7 +46,8 @@ export const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
     loadSubscriptions();
   }, [
     subscriptions.length,
-    accounts.length,
+    accounts?.length, // Use optional chaining
+    inProgress,
     instance,
     setLoading,
     setError,

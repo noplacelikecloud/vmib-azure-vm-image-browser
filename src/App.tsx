@@ -2,6 +2,7 @@ import React from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { MsalProvider } from '@azure/msal-react';
 import { AuthProvider } from './components/auth/AuthProvider';
+import { AuthEventHandler } from './components/auth/AuthEventHandler';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { NetworkStatus } from './components/ui/NetworkStatus';
 import { EnvironmentDebug } from './components/debug/EnvironmentDebug';
@@ -18,6 +19,9 @@ function App(): React.JSX.Element {
     <ErrorBoundary>
       <MsalProvider instance={msalInstance}>
         <AuthProvider>
+          {/* Authentication Event Handler */}
+          <AuthEventHandler />
+          
           <div className="min-h-screen bg-gray-50">
             {/* Network Status Indicator */}
             <NetworkStatus />

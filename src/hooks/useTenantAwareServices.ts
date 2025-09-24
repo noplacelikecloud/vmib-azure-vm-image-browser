@@ -13,7 +13,7 @@ import type { Subscription } from '../types';
  * This ensures that API calls are made with the correct tenant context
  */
 export function useTenantAwareServices() {
-  const { instance, accounts } = useMsal();
+  const { instance, accounts, inProgress } = useMsal();
   const { subscriptions, selectedSubscription } = useSubscriptions();
 
   const currentSubscription = useMemo(() => {
@@ -22,7 +22,8 @@ export function useTenantAwareServices() {
   }, [subscriptions, selectedSubscription]);
 
   const services = useMemo(() => {
-    if (!currentSubscription || accounts.length === 0) {
+    // Add proper null checks for accounts array and MSAL initialization state
+    if (!currentSubscription || !accounts || accounts.length === 0 || inProgress !== 'none') {
       return null;
     }
 
@@ -48,7 +49,7 @@ export function useTenantAwareServices() {
       tokenProvider,
       currentSubscription,
     };
-  }, [instance, accounts, currentSubscription]);
+  }, [instance, accounts, currentSubscription, inProgress]);
 
   return services;
 }
@@ -58,10 +59,11 @@ export function useTenantAwareServices() {
  * Useful when you need to make API calls for a subscription different from the currently selected one
  */
 export function useTenantAwareTokenProvider(subscription: Subscription | null) {
-  const { instance, accounts } = useMsal();
+  const { instance, accounts, inProgress } = useMsal();
 
   const tokenProvider = useMemo(() => {
-    if (!subscription || accounts.length === 0) {
+    // Add proper null checks for accounts array and MSAL initialization state
+    if (!subscription || !accounts || accounts.length === 0 || inProgress !== 'none') {
       return null;
     }
 
@@ -70,7 +72,7 @@ export function useTenantAwareTokenProvider(subscription: Subscription | null) {
       accounts[0],
       subscription.tenantId
     );
-  }, [instance, accounts, subscription]);
+  }, [instance, accounts, subscription, inProgress]);
 
   return tokenProvider;
 }

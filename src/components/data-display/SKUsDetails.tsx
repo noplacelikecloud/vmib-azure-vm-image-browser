@@ -135,6 +135,7 @@ export const SKUsDetails: React.FC<SKUsDetailsProps> = ({ className = '' }) => {
   const { publisherName, offerName } = useParams<{ publisherName: string; offerName: string }>();
   const { selectedSubscription, selectedLocation } = useSubscriptions();
   const tenantAwareServices = useTenantAwareServices();
+  const { accounts } = useMsal();
   
   // Modal state
   const [selectedSku, setSelectedSku] = useState<SKU | null>(null);
@@ -167,7 +168,7 @@ export const SKUsDetails: React.FC<SKUsDetailsProps> = ({ className = '' }) => {
       sku,
       selectedSubscription,
       selectedLocation,
-      accountsLength: accounts.length
+      accountsLength: accounts?.length || 0
     });
 
     if (!selectedSubscription || !selectedLocation || !tenantAwareServices) {
