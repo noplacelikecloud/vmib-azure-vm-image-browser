@@ -15,9 +15,9 @@ A modern web application for browsing Azure Marketplace VM Images with OAuth2/OI
 
 - **Frontend**: React 18 + TypeScript + Vite
 - **Styling**: Tailwind CSS
-- **State Management**: Zustand (to be added)
-- **Authentication**: MSAL React (to be added)
-- **Routing**: React Router (to be added)
+- **State Management**: Zustand
+- **Authentication**: MSAL React
+- **Routing**: React Router
 - **Code Quality**: ESLint + Prettier
 
 ## Getting Started
