@@ -70,6 +70,23 @@ After creating the Static Web App, you need to add secrets to your GitHub reposi
 - **`VITE_REDIRECT_URI`**: Your Static Web App URL (e.g., `https://your-app.azurestaticapps.net`)
 - **`VITE_POST_LOGOUT_REDIRECT_URI`**: Same as redirect URI
 
+#### Important Notes:
+- Environment variables must be prefixed with `VITE_` to be available in the browser
+- These are build-time variables, not runtime variables
+- Values are embedded in the built JavaScript bundle
+- Never put sensitive secrets in VITE_ variables (they're visible to users)
+
+#### Verification:
+Run the environment check locally:
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your values
+# Then run the check
+npm run check-env
+```
+
 ### 3. Azure AD App Registration Setup
 
 1. Go to [Azure Portal](https://portal.azure.com) → **Azure Active Directory** → **App registrations**
@@ -134,19 +151,55 @@ The application uses the following environment variables:
 
 ### Common Issues
 
-1. **Build Failures**:
+1. **Environment Variables Not Working**:
+   - Verify GitHub Secrets are set correctly (case-sensitive)
+   - Check that variables are prefixed with `VITE_`
+   - Run `npm run check-env` to validate configuration
+   - Environment variables are build-time, not runtime
+   - Clear browser cache after deployment
+
+2. **Build Failures**:
    - Check that all dependencies are listed in `package.json`
    - Ensure environment variables are properly set
    - Verify the build command works locally
+   - Check GitHub Action logs for specific errors
 
-2. **Authentication Issues**:
+3. **Authentication Issues**:
    - Verify Azure AD App Registration redirect URIs
-   - Check that client ID is correct
+   - Check that client ID is correct and matches the one in GitHub Secrets
    - Ensure the app registration has proper permissions
+   - Verify redirect URIs include your production domain
 
-3. **Routing Issues**:
+4. **Routing Issues**:
    - The `staticwebapp.config.json` file handles SPA routing
    - Ensure it's in the `public` folder
+   - Check that all routes return 200 status code
+
+#### Environment Variable Debugging:
+
+1. **Check Build Logs**:
+   ```bash
+   # In GitHub Actions, look for:
+   # "Check environment variables" step output
+   ```
+
+2. **Local Testing**:
+   ```bash
+   # Test environment configuration
+   npm run check-env
+   
+   # Test build with environment variables
+   npm run build
+   ```
+
+3. **Browser Console**:
+   ```javascript
+   // Check if variables are available (in browser console)
+   console.log('Environment:', {
+     clientId: import.meta.env.VITE_AZURE_CLIENT_ID,
+     redirectUri: import.meta.env.VITE_REDIRECT_URI
+   });
+   ```
 
 ## Security Considerations
 

@@ -1,12 +1,13 @@
 import { PublicClientApplication } from '@azure/msal-browser';
+import { env } from './environment';
 
 // MSAL configuration for Multi-Tenant App
 export const msalConfig = {
   auth: {
-    clientId: import.meta.env.VITE_AZURE_CLIENT_ID || 'your-actual-client-id-here',
+    clientId: env.azureClientId,
     authority: 'https://login.microsoftonline.com/common', // Multi-tenant
-    redirectUri: import.meta.env.VITE_REDIRECT_URI || window.location.origin,
-    postLogoutRedirectUri: import.meta.env.VITE_POST_LOGOUT_REDIRECT_URI || window.location.origin,
+    redirectUri: env.redirectUri,
+    postLogoutRedirectUri: env.postLogoutRedirectUri,
   },
   cache: {
     cacheLocation: 'sessionStorage', // Use sessionStorage for better security

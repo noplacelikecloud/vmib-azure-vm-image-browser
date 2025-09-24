@@ -4,6 +4,7 @@ import { MsalProvider } from '@azure/msal-react';
 import { AuthProvider } from './components/auth/AuthProvider';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { NetworkStatus } from './components/ui/NetworkStatus';
+import { EnvironmentDebug } from './components/debug/EnvironmentDebug';
 import { msalInstance } from './config/msalConfig';
 import { router } from './routes';
 // import { PublishersPage } from './pages/PublishersPage'; // Unused
@@ -23,6 +24,9 @@ function App(): React.JSX.Element {
             
             {/* Main Application Router */}
             <RouterProvider router={router} />
+            
+            {/* Development Environment Debug Panel */}
+            <EnvironmentDebug />
           </div>
         </AuthProvider>
       </MsalProvider>

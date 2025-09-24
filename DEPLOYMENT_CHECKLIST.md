@@ -26,9 +26,10 @@ Use this checklist to ensure your Azure VM Marketplace Browser is properly deplo
 
 - [ ] **GitHub Secrets**
   - [ ] `AZURE_STATIC_WEB_APPS_API_TOKEN` added
-  - [ ] `VITE_AZURE_CLIENT_ID` added
+  - [ ] `VITE_AZURE_CLIENT_ID` added (Azure AD Client ID)
   - [ ] `VITE_REDIRECT_URI` added (production URL)
   - [ ] `VITE_POST_LOGOUT_REDIRECT_URI` added (production URL)
+  - [ ] Environment check passes (`npm run check-env`)
 
 - [ ] **Repository Files**
   - [ ] `.github/workflows/azure-static-web-apps-deploy.yml` exists
@@ -41,6 +42,7 @@ Use this checklist to ensure your Azure VM Marketplace Browser is properly deplo
 - [ ] **Verify Deployment**
   - [ ] GitHub Action completed successfully
   - [ ] Application loads at production URL
+  - [ ] Environment variables are working (check browser console)
   - [ ] Authentication works (login/logout)
   - [ ] All routes work correctly (no 404s)
   - [ ] API calls succeed (publishers, offers, SKUs load)
