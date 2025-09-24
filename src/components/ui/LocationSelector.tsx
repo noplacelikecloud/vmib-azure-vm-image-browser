@@ -116,17 +116,6 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
       console.error('Failed to fetch locations:', error);
       // Fallback to default locations on error
       setLocations(FALLBACK_LOCATIONS);
-      }
-
-      const data = await response.json();
-      const locationsArray = data.value || [];
-
-      // Filter to only include physical regions (type = "Region" AND metadata.regionType = "Physical")
-      // This ensures only actual Azure regions are shown, excluding edge zones and geographical groupings
-      const regions = locationsArray
-        .filter(
-          (loc: any) =>
-            loc.type === 'Region' && loc.metadata?.regionType === 'Physical'
     } finally {
       setLoadingLocations(false);
     }

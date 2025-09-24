@@ -28,7 +28,7 @@ function getEnvVar(key: string, fallback?: string): string {
 /**
  * Detect if we're running in development mode
  */
-function isDevelopment(): boolean {
+function checkIsDevelopment(): boolean {
   return import.meta.env.MODE === 'development' || 
          import.meta.env.DEV === true ||
          window.location.hostname === 'localhost' ||
@@ -46,7 +46,7 @@ function getCurrentOrigin(): string {
  * Create environment configuration with proper fallbacks
  */
 function createEnvironmentConfig(): EnvironmentConfig {
-  const isDevMode = isDevelopment();
+  const isDevMode = checkIsDevelopment();
   const currentOrigin = getCurrentOrigin();
   
   // Development fallbacks
